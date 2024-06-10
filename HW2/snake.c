@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <ctype.h> // Добавим для функции tolower
 
+#define MAX_X 15
+#define MAX_Y 15
+
 #define MIN_Y 2
 enum {LEFT=1, UP, RIGHT, DOWN, STOP_GAME=KEY_F(10)};
 enum {MAX_TAIL_SIZE=100, START_TAIL_SIZE=3, MAX_FOOD_SIZE=20, FOOD_EXPIRE_SECONDS=10};
@@ -80,20 +83,33 @@ void go(snake_t *head) {
     mvprintw(head->y, head->x, " "); // очищаем один символ
     switch (head->direction) {
         case LEFT:
-            mvprintw(head->y, --(head->x), "%c", ch);
+            head->x--;
+            if (head->x < 0) {
+                head->x = MAX_X - 1;
+            }
             break;
         case RIGHT:
-            mvprintw(head->y, ++(head->x), "%c", ch);
+            head->x++;
+            if (head->x >= MAX_X) {
+                head->x = 0;
+            }
             break;
         case UP:
-            mvprintw(--(head->y), head->x, "%c", ch);
+            head->y--;
+            if (head->y < MIN_Y) {
+                head->y = MAX_Y - 1;
+            }
             break;
         case DOWN:
-            mvprintw(++(head->y), head->x, "%c", ch);
+            head->y++;
+            if (head->y >= MAX_Y) {
+                head->y = MIN_Y;
+            }
             break;
         default:
             break;
     }
+    mvprintw(head->y, head->x, "%c", ch);
     refresh();
 }
 
@@ -136,13 +152,33 @@ int checkDirection(snake_t* snake, int32_t key) {
     return 1; // Корректное направление
 }
 
+void drawField()
+{
+    // char matrix[MAX_X][MAX_Y];
+    for (int i = 0; i < MAX_Y; ++i)
+    {
+        for (int j = 0; j < MAX_X; ++j)
+        {
+            if (i == 0 || i == MAX_Y - 1 || j == 0 || j == MAX_X - 1)
+            {
+                printf("X");
+            }
+            else
+            {
+                printf(" ");
+            }
+        }
+        printf("\n");
+    }
+}
+
 int main() {
     snake_t* snake = (snake_t*)malloc(sizeof(snake_t));
     if (snake == NULL) {
         fprintf(stderr, "Ошибка выделения памяти\n");
         return 1;
     }
-
+    drawField();
     initSnake(snake, START_TAIL_SIZE, 10, 10);
     initscr();
     keypad(stdscr, TRUE); // Включаем F1, F2, стрелки и т.д.
