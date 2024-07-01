@@ -1,47 +1,29 @@
-TARGET=drone
+CC = gcc
+CFLAGS = -Wall -Wextra -pedantic -I"C:/MinGW/include"
+LDFLAGS = -L"C:/MinGW/lib" -lpdcurses
 
-ARGS=-lncursesw -lm
+OBJS = main.o drone_control.o ai_control.o draw.o input.o object_interaction.o
 
-all: $(TARGET).exe
-	./$(TARGET).exe
+drone_program: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
-$(TARGET).exe: $(TARGET).o ai.o checks.o colors.o help.o inits.o maps.o menu.o moves.o prints.o queue.o 
-	gcc -o $(TARGET).exe $(TARGET).o  ai.o checks.o colors.o help.o inits.o maps.o menu.o moves.o prints.o queue.o $(ARGS)
+main.o: main.c drone_control.h ai_control.h draw.h input.h object_interaction.h
+	$(CC) $(CFLAGS) -c main.c -o main.o
 
-ai.o: ai.c
-	gcc -c ai.c -o ai.o
+drone_control.o: drone_control.c drone_control.h
+	$(CC) $(CFLAGS) -c drone_control.c -o drone_control.o
 
-checks.o: checks.c 
-	gcc -c checks.c -o checks.o 
-	
-colors.o: colors.c  
-	gcc -c colors.c -o colors.o
+ai_control.o: ai_control.c ai_control.h drone_control.h
+	$(CC) $(CFLAGS) -c ai_control.c -o ai_control.o
 
-help.o: help.c 
-	gcc -c help.c -o help.o 
+draw.o: draw.c draw.h drone_control.h
+	$(CC) $(CFLAGS) -c draw.c -o draw.o
 
-inits.o: inits.c 
-	gcc -c inits.c -o inits.o 
+input.o: input.c input.h
+	$(CC) $(CFLAGS) -c input.c -o input.o
 
-maps.o: maps.c 
-	gcc -c maps.c -o maps.o 
-
-menu.o: menu.c 
-	gcc -c menu.c -o menu.o 
-
-moves.o: moves.c 
-	gcc -c moves.c -o moves.o 
-	
-prints.o: prints.c 
-	gcc -c prints.c -o prints.o 
-
-quue.o: quue.c 
-	gcc -c quue.c -o quue.o 
-
-$(TARGET).o: $(TARGET).c  
-	gcc -c $(TARGET).c -o $(TARGET).o
+object_interaction.o: object_interaction.c object_interaction.h drone_control.h
+	$(CC) $(CFLAGS) -c object_interaction.c -o object_interaction.o
 
 clean:
-	rm -fr *.o $(TARGET).exe
-
-
+	rm -f $(OBJS) drone_program
